@@ -1,0 +1,23 @@
+
+services:
+  floci:
+    image: floci/floci:latest
+    container_name: floci
+    user: root
+    ports:
+      - "${FLOCI_PORT:-4566}:4566"
+    volumes:
+      - ./data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      FLOCI_STORAGE_MODE: ${FLOCI_STORAGE_MODE:-hybrid}
+      FLOCI_STORAGE_PERSISTENT_PATH: ${FLOCI_STORAGE_PERSISTENT_PATH:-/app/data}
+      FLOCI_HOSTNAME: floci
+      FLOCI_SERVICES_LAMBDA_DOCKER_NETWORK: floci-net
+    networks:
+      - floci-net
+    restart: unless-stopped
+
+networks:
+  floci-net:
+    name: floci-net
