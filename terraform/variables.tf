@@ -40,3 +40,34 @@ variable "json_pattern" {
   type        = string
   default     = "^data_[a-z0-9]+_v\\d+\\.json$"
 }
+
+variable "db_identifier" {
+  description = "RDS instance identifier"
+  type        = string
+  default     = "my-project-db"
+}
+
+variable "db_name" {
+  description = "Name of the PostgreSQL database"
+  type        = string
+  default     = "opendata"
+}
+
+variable "db_username" {
+  description = "Master user of the PostgreSQL instance"
+  type        = string
+  default     = "labadmin"
+}
+
+variable "db_password" {
+  description = "Master password (local emulator only)"
+  type        = string
+  default     = "labpassword"
+  sensitive   = true
+}
+
+variable "db_port" {
+  description = "Port of the RDS proxy (Floci accepts 7001-7099)"
+  type        = number
+  default     = 7001
+}

@@ -6,6 +6,7 @@ services:
     user: root
     ports:
       - "${FLOCI_PORT:-4566}:4566"
+      - "7001-7010:7001-7010"
     volumes:
       - ./data:/app/data
       - /var/run/docker.sock:/var/run/docker.sock
@@ -14,6 +15,8 @@ services:
       FLOCI_STORAGE_PERSISTENT_PATH: ${FLOCI_STORAGE_PERSISTENT_PATH:-/app/data}
       FLOCI_HOSTNAME: floci
       FLOCI_SERVICES_LAMBDA_DOCKER_NETWORK: floci-net
+      FLOCI_SERVICES_RDS_ENDPOINT_HOST: localhost
+      FLOCI_SERVICES_RDS_PROXY_MAX_PORT: 7010
     networks:
       - floci-net
     restart: unless-stopped

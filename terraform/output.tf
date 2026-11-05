@@ -18,3 +18,13 @@ output "lambda_function_name" {
   description = "Name of the file router Lambda"
   value       = aws_lambda_function.file_router.function_name
 }
+
+output "db_endpoint" {
+  description = "PostgreSQL endpoint (host:port)"
+  value       = aws_db_instance.postgres.endpoint
+}
+
+output "db_name" {
+  description = "PostgreSQL database name"
+  value       = aws_db_instance.postgres.db_name
+}

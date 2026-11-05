@@ -29,5 +29,6 @@ provider "aws" {
     lambda = var.floci_endpoint
     iam    = var.floci_endpoint
     sts    = var.floci_endpoint
+    rds    = var.floci_endpoint
   }
 }
