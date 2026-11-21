@@ -1,8 +1,19 @@
 
+# Copies lambda/*.py and installs lambda/requirements.txt (psycopg) for Linux into build/lambda_pkg
+data "external" "lambda_package" {
+  program = ["python", "${path.module}/../scripts/build_lambda.py"]
+
+  query = {
+    src = "${path.module}/../lambda"
+    out = "${path.module}/build/lambda_pkg"
+  }
+}
+
 data "archive_file" "file_router" {
   type        = "zip"
-  source_file = "${path.module}/../lambda/handler.py"
+  source_dir  = data.external.lambda_package.result.dir
   output_path = "${path.module}/build/file_router.zip"
+  excludes    = [".requirements.sha256"]
 }
 
 resource "aws_iam_role" "lambda" {
@@ -46,7 +57,7 @@ resource "aws_lambda_function" "file_router" {
   handler          = "handler.lambda_handler"
   filename         = data.archive_file.file_router.output_path
   source_code_hash = data.archive_file.file_router.output_base64sha256
-  timeout          = 30
+  timeout          = 60
 
   environment {
     variables = {
@@ -54,8 +65,14 @@ resource "aws_lambda_function" "file_router" {
       INCOMING_PREFIX  = "incoming/"
       PROCESSED_PREFIX = "processed/"
       IGNORED_PREFIX   = "ignored/"
+      FAILED_PREFIX    = "failed/"
       CSV_PATTERN      = var.csv_pattern
       JSON_PATTERN     = var.json_pattern
+      DB_HOST          = var.lambda_db_host
+      DB_PORT          = tostring(var.db_port)
+      DB_NAME          = var.db_name
+      DB_USER          = var.db_username
+      DB_PASSWORD      = var.db_password
     }
   }
 }
@@ -78,5 +95,5 @@ resource "aws_s3_bucket_notification" "incoming" {
   }
 
   # Папки створюються до тригера, щоб їх маркери не запускали Lambda
-  depends_on = [aws_lambda_permission.allow_s3, aws_s3_object.folders]
+  depends_on = [aws_lambda_permission.allow_s3, aws_s3_object.folders, aws_db_instance.postgres]
 }

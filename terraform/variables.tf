@@ -30,15 +30,15 @@ variable "lambda_s3_endpoint" {
 }
 
 variable "csv_pattern" {
-  description = "Regex for valid .csv file names (e.g. report_20261029.csv)"
+  description = "Regex for valid .csv file names (e.g. city_routes_20261120.csv)"
   type        = string
-  default     = "^report_\\d{8}\\.csv$"
+  default     = "^city_routes_\\d{8}\\.csv$"
 }
 
 variable "json_pattern" {
-  description = "Regex for valid .json file names (e.g. data_orders_v1.json)"
+  description = "Regex for valid .json file names (e.g. agri_enterprises_20261120.json)"
   type        = string
-  default     = "^data_[a-z0-9]+_v\\d+\\.json$"
+  default     = "^agri_enterprises_\\d{8}\\.json$"
 }
 
 variable "db_identifier" {
@@ -70,4 +70,10 @@ variable "db_port" {
   description = "Port of the RDS proxy (Floci accepts 7001-7099)"
   type        = number
   default     = 7001
+}
+
+variable "lambda_db_host" {
+  description = "RDS host as seen from inside the Lambda container (Floci RDS proxy)"
+  type        = string
+  default     = "floci"
 }

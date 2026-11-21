@@ -32,7 +32,8 @@ CREATE TABLE IF NOT EXISTS city_routes (
     imported_at  timestamptz  NOT NULL DEFAULT now(),
 
     CONSTRAINT city_routes_type_chk CHECK (route_type BETWEEN 0 AND 12),
-    CONSTRAINT city_routes_uid_per_file_uq UNIQUE (source_file, route_uid)
+    -- one row per route: a repeated route_uid updates the existing row instead of duplicating it
+    CONSTRAINT city_routes_route_uid_uq UNIQUE (route_uid)
 );
 
 CREATE INDEX IF NOT EXISTS city_routes_agency_idx     ON city_routes (agency_id);
@@ -49,10 +50,27 @@ CREATE TABLE IF NOT EXISTS agri_enterprises (
     source_file  varchar(1024) NOT NULL,
     imported_at  timestamptz  NOT NULL DEFAULT now(),
 
-    CONSTRAINT agri_enterprises_edrpou_chk CHECK (edrpou ~ '^[0-9]{8}$')
+    CONSTRAINT agri_enterprises_edrpou_chk CHECK (edrpou ~ '^[0-9]{8}$'),
+    -- EDRPOU alone is not unique (one enterprise can have several addresses), EDRPOU + address is
+    CONSTRAINT agri_enterprises_edrpou_address_uq UNIQUE NULLS NOT DISTINCT (edrpou, address)
 );
 
-CREATE INDEX IF NOT EXISTS agri_enterprises_edrpou_idx ON agri_enterprises (edrpou);
 CREATE INDEX IF NOT EXISTS agri_enterprises_source_idx ON agri_enterprises (source_file);
+
+
+-- Files already loaded: a file with the same content (sha256) is not imported twice
+CREATE TABLE IF NOT EXISTS import_log (
+    id           bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    source_file  varchar(1024) NOT NULL,
+    file_sha256  char(64)     NOT NULL,
+    target_table varchar(64)  NOT NULL,
+    rows_in_file integer      NOT NULL,
+    inserted     integer      NOT NULL,
+    updated      integer      NOT NULL,
+    skipped      integer      NOT NULL,
+    imported_at  timestamptz  NOT NULL DEFAULT now(),
+
+    CONSTRAINT import_log_sha256_uq UNIQUE (file_sha256)
+);
 
 COMMIT;

@@ -10,7 +10,7 @@ resource "aws_s3_bucket" "app" {
 }
 
 resource "aws_s3_object" "folders" {
-  for_each = toset(["incoming/", "processed/", "ignored/"])
+  for_each = toset(["incoming/", "processed/", "ignored/", "failed/"])
 
   bucket  = aws_s3_bucket.app.id
   key     = each.value
